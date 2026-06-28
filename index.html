@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -98,7 +98,7 @@ input[type=range].pb-range::-webkit-slider-thumb { background:var(--pb-light); b
 <div class="container">
   <div class="header">
     <h1>铅锌矿套保计算器</h1>
-    <div class="subtitle" id="subtitle">基于上期所沪锌/沪铅期货主连行情</div>
+    <div class="subtitle" id="subtitle">基于SMM 1#锌锭/1#铅锭现货行情</div>
   </div>
 
   <!-- Mode -->
@@ -112,14 +112,14 @@ input[type=range].pb-range::-webkit-slider-thumb { background:var(--pb-light); b
   <div class="refresh-bar"><button onclick="fetchPrices()">🔄 刷新行情</button></div>
   <div class="price-row" id="priceRowZn" style="display:flex">
     <div class="price-card zn">
-      <div class="label"><span class="dot live" id="dotZn"></span>沪锌 SHFE</div>
+      <div class="label"><span class="dot live" id="dotZn"></span>SMM 1#锌锭</div>
       <div class="value" id="priceZn">--<span class="unit">元/吨</span></div>
       <div class="meta" id="metaZn"></div>
     </div>
   </div>
   <div class="price-row" id="priceRowPb" style="display:flex">
     <div class="price-card pb">
-      <div class="label"><span class="dot live" id="dotPb"></span>沪铅 SHFE</div>
+      <div class="label"><span class="dot live" id="dotPb"></span>SMM 1#铅锭</div>
       <div class="value" id="pricePb">--<span class="unit">元/吨</span></div>
       <div class="meta" id="metaPb"></div>
     </div>
@@ -214,7 +214,7 @@ function setMode(mode) {
   document.getElementById('paramRowPb').style.display = showPb?'flex':'none';
   document.getElementById('priceRowZn').style.display = showZn?'flex':'none';
   document.getElementById('priceRowPb').style.display = showPb?'flex':'none';
-  document.getElementById('subtitle').textContent = mode==='mixed'?'基于上期所沪锌/沪铅期货主连行情':'基于上期所沪锌/沪铅期货主连行情';
+  document.getElementById('subtitle').textContent = mode==='mixed'?'基于SMM 1#锌锭/1#铅锭现货行情':'基于SMM 1#锌锭/1#铅锭现货行情';
   calc();
 }
 
@@ -244,10 +244,10 @@ function calc() {
   var bd='';
   if (currentMode==='zn') {
     totalOrePrice=znOrePrice;
-    bd='沪锌 '+znPrice.toLocaleString()+' ÷1.13 ×'+znCoeff.toFixed(1)+'% ×'+znGrade.toFixed(1)+'% - TC '+tcZn;
+    bd='1#锌 '+znPrice.toLocaleString()+' ÷1.13 ×'+znCoeff.toFixed(1)+'% ×'+znGrade.toFixed(1)+'% - TC '+tcZn;
   } else if (currentMode==='pb') {
     totalOrePrice=pbOrePrice;
-    bd='沪铅 '+pbPrice.toLocaleString()+' ÷1.13 ×'+pbCoeff.toFixed(1)+'% ×'+pbGrade.toFixed(1)+'% - TC '+tcPb;
+    bd='1#铅 '+pbPrice.toLocaleString()+' ÷1.13 ×'+pbCoeff.toFixed(1)+'% ×'+pbGrade.toFixed(1)+'% - TC '+tcPb;
   } else {
     totalOrePrice=znOrePrice+pbOrePrice;
     bd='锌部分: '+znOrePrice.toFixed(0)+' + 铅部分: '+pbOrePrice.toFixed(0);
