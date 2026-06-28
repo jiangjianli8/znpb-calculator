@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>铅锌矿套保计算器</title>
+<style>
+:root {
+  --bg: #1a1a1e; --card: #252530; --card2: #2a2a38; --text: #e0e0e0; --text2: #a0a0b0;
+  --zn: #7b9ec7; --zn-light: #a0c4e8; --zn-dark: #3a5a80;
+  --pb: #8899aa; --pb-light: #aabbcc; --pb-dark: #556677;
+  --gold: #daa520; --accent: #4ecdc4; --danger: #e05555; --border: #3a3a48; --radius: 12px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; justify-content:center; padding:16px; }
+.container { width:100%; max-width:520px; }
+.header { text-align:center; padding:24px 0 16px; }
+.header h1 { font-size:2.2rem; font-weight:900; background:linear-gradient(135deg,var(--zn-light),var(--pb-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.header .subtitle { font-size:0.8rem; color:var(--text2); margin-top:4px; }
+
+/* Mode switch */
+.mode-switch { display:flex; gap:6px; margin-bottom:16px; }
+.mode-switch button { flex:1; padding:10px 6px; border:1px solid var(--border); background:var(--card2); color:var(--text2); border-radius:10px; font-size:0.78rem; cursor:pointer; transition:all 0.2s; }
+.mode-switch button.active { border-color:var(--accent); background:rgba(78,205,196,0.12); color:var(--accent); font-weight:700; }
+
+/* Price cards */
+.price-row { display:flex; gap:10px; margin-bottom:16px; }
+.price-card { flex:1; background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:14px; text-align:center; }
+.price-card.zn { border-color:var(--zn-dark); background:linear-gradient(135deg,#1a1e24,#1a1e22); }
+.price-card.pb { border-color:var(--pb-dark); background:linear-gradient(135deg,#1e1e22,#1a1e24); }
+.price-card .label { font-size:0.7rem; color:var(--text2); margin-bottom:4px; }
+.price-card .dot { display:inline-block; width:6px; height:6px; border-radius:50%; margin-right:4px; }
+.price-card .dot.live { background:#4caf50; }
+.price-card .dot.cache { background:#ff9800; }
+.price-card .value { font-size:1.6rem; font-weight:800; }
+.price-card.zn .value { color:var(--zn-light); }
+.price-card.pb .value { color:var(--pb-light); }
+.price-card .unit { font-size:0.75rem; font-weight:400; color:var(--text2); }
+.price-card .meta { font-size:0.6rem; color:var(--text2); margin-top:2px; }
+.refresh-bar { display:flex; justify-content:flex-end; margin-bottom:12px; }
+.refresh-bar button { background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--text2); padding:4px 14px; border-radius:20px; font-size:0.7rem; cursor:pointer; }
+
+/* Calculator card */
+.calc-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:16px; }
+.calc-card h2 { font-size:0.85rem; font-weight:600; color:var(--text2); margin-bottom:14px; }
+
+/* Sliders */
+.grade-row { display:flex; gap:12px; margin-bottom:14px; }
+.grade-col { flex:1; }
+.grade-col label { display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text2); margin-bottom:6px; }
+.grade-col .val { font-weight:700; }
+.grade-col.zn .val { color:var(--zn-light); }
+.grade-col.pb .val { color:var(--pb-light); }
+input[type=range] { -webkit-appearance:none; width:100%; height:6px; border-radius:3px; outline:none; }
+input[type=range].zn-range { background:linear-gradient(90deg,#3a5a80,var(--zn-light)); }
+input[type=range].pb-range { background:linear-gradient(90deg,#556677,var(--pb-light)); }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:30px; height:30px; border-radius:50%; border:3px solid #fff; cursor:pointer; }
+input[type=range].zn-range::-webkit-slider-thumb { background:var(--zn-light); box-shadow:0 2px 10px rgba(123,158,199,0.4); }
+input[type=range].pb-range::-webkit-slider-thumb { background:var(--pb-light); box-shadow:0 2px 10px rgba(136,153,170,0.4); }
+
+/* Presets */
+.presets { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:12px; }
+.presets button { background:var(--card2); border:1px solid var(--border); color:var(--text2); padding:3px 9px; border-radius:16px; font-size:0.65rem; cursor:pointer; }
+
+/* Coeff + TC */
+.param-row { display:flex; gap:10px; margin-bottom:14px; }
+.param-item { flex:1; background:var(--card2); border-radius:8px; padding:10px 12px; text-align:center; }
+.param-item .lbl { font-size:0.65rem; color:var(--text2); }
+.param-item .v { font-size:1.1rem; font-weight:700; color:var(--accent); }
+.param-item input { background:var(--bg); border:1px solid var(--border); color:var(--text); width:80px; padding:3px 6px; border-radius:4px; font-size:0.75rem; text-align:center; }
+
+/* Tax toggle */
+.tax-toggle { display:flex; align-items:center; gap:8px; margin-bottom:14px; font-size:0.7rem; color:var(--text2); }
+.tax-toggle .switch { position:relative; width:44px; height:24px; }
+.tax-toggle .switch input { opacity:0; width:0; height:0; }
+.tax-toggle .slider { position:absolute; cursor:pointer; top:0;left:0;right:0;bottom:0; background:var(--border); border-radius:24px; transition:0.3s; }
+.tax-toggle .slider:before { content:""; position:absolute; height:18px; width:18px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:0.3s; }
+.tax-toggle input:checked+.slider { background:var(--accent); }
+.tax-toggle input:checked+.slider:before { transform:translateX(20px); }
+
+/* Result */
+.result-card { background:linear-gradient(135deg,#1e1a14,#1a1e14); border:2px solid var(--gold); border-radius:var(--radius); padding:20px; text-align:center; margin-bottom:16px; }
+.result-card .label { font-size:0.75rem; color:var(--gold); margin-bottom:6px; }
+.result-card .value { font-size:2.8rem; font-weight:800; color:var(--gold); }
+.result-card .unit { font-size:0.85rem; color:var(--text2); }
+.result-card .breakdown { font-size:0.7rem; color:var(--text2); margin-top:8px; line-height:1.6; }
+
+/* Footer */
+.footer { text-align:center; padding:16px; }
+.footer span { font-weight:900; font-size:1.95rem; }
+.footer .brand1 { color:#2196F3; }
+.footer .brand2 { color:#2196F3; }
+
+.price-error { color:var(--danger); font-size:0.65rem; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>铅锌矿套保计算器</h1>
+    <div class="subtitle" id="subtitle">基于上期所沪锌/沪铅期货主连行情</div>
+  </div>
+
+  <!-- Mode -->
+  <div class="mode-switch">
+    <button class="active" onclick="setMode('zn')">🪙 纯锌矿</button>
+    <button onclick="setMode('pb')">🪨 纯铅矿</button>
+    <button onclick="setMode('mixed')">⚒️ 铅锌混合矿</button>
+  </div>
+
+  <!-- Prices -->
+  <div class="refresh-bar"><button onclick="fetchPrices()">🔄 刷新行情</button></div>
+  <div class="price-row" id="priceRowZn" style="display:flex">
+    <div class="price-card zn">
+      <div class="label"><span class="dot live" id="dotZn"></span>沪锌 SHFE</div>
+      <div class="value" id="priceZn">--<span class="unit">元/吨</span></div>
+      <div class="meta" id="metaZn"></div>
+    </div>
+  </div>
+  <div class="price-row" id="priceRowPb" style="display:flex">
+    <div class="price-card pb">
+      <div class="label"><span class="dot live" id="dotPb"></span>沪铅 SHFE</div>
+      <div class="value" id="pricePb">--<span class="unit">元/吨</span></div>
+      <div class="meta" id="metaPb"></div>
+    </div>
+  </div>
+
+  <!-- Calculator -->
+  <div class="calc-card">
+    <h2>📐 精矿计价</h2>
+
+    <!-- Zn grade -->
+    <div class="grade-row" id="gradeRowZn">
+      <div class="grade-col zn" style="flex:1">
+        <label>锌品位 Zn% <span class="val" id="znGradeVal">50</span>%</label>
+        <input type="range" class="zn-range" id="znGrade" min="25" max="60" value="50" step="0.1" oninput="calc()">
+      </div>
+    </div>
+    <div class="presets" id="presetsZn"></div>
+
+    <!-- Pb grade -->
+    <div class="grade-row" id="gradeRowPb">
+      <div class="grade-col pb" style="flex:1">
+        <label>铅品位 Pb% <span class="val" id="pbGradeVal">60</span>%</label>
+        <input type="range" class="pb-range" id="pbGrade" min="30" max="80" value="60" step="0.1" oninput="calc()">
+      </div>
+    </div>
+    <div class="presets" id="presetsPb"></div>
+
+    <!-- Coeff + TC -->
+    <div class="param-row" id="paramRowZn">
+      <div class="param-item"><div class="lbl">锌计价系数</div><div class="v" id="coeffZn">75%</div></div>
+      <div class="param-item"><div class="lbl">锌TC (元/金属吨)</div><input type="number" id="tcZn" value="5200" min="4000" max="7000" step="100" oninput="calc()"></div>
+    </div>
+    <div class="param-row" id="paramRowPb">
+      <div class="param-item"><div class="lbl">铅计价系数</div><div class="v" id="coeffPb">75%</div></div>
+      <div class="param-item"><div class="lbl">铅TC (元/金属吨)</div><input type="number" id="tcPb" value="500" min="300" max="800" step="50" oninput="calc()"></div>
+    </div>
+
+    <!-- Tax toggle -->
+    <div class="tax-toggle">
+      <label class="switch"><input type="checkbox" id="taxMode" checked onchange="calc()"><span class="slider"></span></label>
+      <span id="taxLabel">含税价 → 不含税 (÷1.13)</span>
+    </div>
+  </div>
+
+  <!-- Result -->
+  <div class="result-card">
+    <div class="label">💰 精矿单价</div>
+    <div class="value" id="orePrice">--<span class="unit">元/吨</span></div>
+    <div class="breakdown" id="breakdown"></div>
+  </div>
+
+  <div class="footer">
+    <span class="brand1">矿链通1.0</span>
+    <span class="brand2">-佛山鑫善源</span>
+  </div>
+</div>
+
+<script>
+// ===== Coefficient Tables (corrected per industry standard) =====
+var ZN_COEFF = [[25,60],[35,65],[45,70],[50,75],[55,75],[60,75]];
+var PB_COEFF = [[30,55],[35,60],[40,65],[50,75],[60,80],[70,88],[80,88]];
+
+var currentMode = 'zn';
+var znPrice = 24420, pbPrice = 16260;
+
+// ===== Interpolation =====
+function getCoeff(table, grade) {
+  if (grade <= table[0][0]) return table[0][1];
+  if (grade >= table[table.length-1][0]) return table[table.length-1][1];
+  for (var i=0;i<table.length-1;i++) {
+    if (grade>=table[i][0] && grade<=table[i+1][0]) {
+      var t=(grade-table[i][0])/(table[i+1][0]-table[i][0]);
+      return table[i][1]+t*(table[i+1][1]-table[i][1]);
+    }
+  }
+  return table[table.length-1][1];
+}
+
+// ===== Mode switch =====
+function setMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-switch button').forEach(function(b,i){
+    b.classList.toggle('active', (i===0&&mode==='zn')||(i===1&&mode==='pb')||(i===2&&mode==='mixed'));
+  });
+  var showZn = mode==='zn'||mode==='mixed';
+  var showPb = mode==='pb'||mode==='mixed';
+  document.getElementById('gradeRowZn').style.display = showZn?'flex':'none';
+  document.getElementById('gradeRowPb').style.display = showPb?'flex':'none';
+  document.getElementById('presetsZn').style.display = showZn?'flex':'none';
+  document.getElementById('presetsPb').style.display = showPb?'flex':'none';
+  document.getElementById('paramRowZn').style.display = showZn?'flex':'none';
+  document.getElementById('paramRowPb').style.display = showPb?'flex':'none';
+  document.getElementById('priceRowZn').style.display = showZn?'flex':'none';
+  document.getElementById('priceRowPb').style.display = showPb?'flex':'none';
+  document.getElementById('subtitle').textContent = mode==='mixed'?'基于上期所沪锌/沪铅期货主连行情':'基于上期所沪锌/沪铅期货主连行情';
+  calc();
+}
+
+// ===== Calculation =====
+function calc() {
+  var znGrade=parseFloat(document.getElementById('znGrade').value);
+  var pbGrade=parseFloat(document.getElementById('pbGrade').value);
+  var tcZn=parseFloat(document.getElementById('tcZn').value)||5200;
+  var tcPb=parseFloat(document.getElementById('tcPb').value)||500;
+  var exVat=document.getElementById('taxMode').checked;
+  var divider=exVat?1.13:1;
+  document.getElementById('taxLabel').textContent=exVat?'含税价 → 不含税 (÷1.13)':'不含税模式 (直接计算)';
+
+  var znCoeff=getCoeff(ZN_COEFF,znGrade);
+  var pbCoeff=getCoeff(PB_COEFF,pbGrade);
+
+  document.getElementById('znGradeVal').textContent=znGrade.toFixed(1);
+  document.getElementById('pbGradeVal').textContent=pbGrade.toFixed(1);
+  document.getElementById('coeffZn').textContent=znCoeff.toFixed(1)+'%';
+  document.getElementById('coeffPb').textContent=pbCoeff.toFixed(1)+'%';
+
+  // Formula: (price/1.13) * coeff% * grade%  (TC is deducted from metal value)
+  var znOrePrice=((znPrice/divider)-tcZn)*(znCoeff/100)*(znGrade/100);
+  var pbOrePrice=((pbPrice/divider)-tcPb)*(pbCoeff/100)*(pbGrade/100);
+
+  var totalOrePrice=0;
+  var bd='';
+  if (currentMode==='zn') {
+    totalOrePrice=znOrePrice;
+    bd='沪锌 '+znPrice.toLocaleString()+' ÷1.13 ×'+znCoeff.toFixed(1)+'% ×'+znGrade.toFixed(1)+'% - TC '+tcZn;
+  } else if (currentMode==='pb') {
+    totalOrePrice=pbOrePrice;
+    bd='沪铅 '+pbPrice.toLocaleString()+' ÷1.13 ×'+pbCoeff.toFixed(1)+'% ×'+pbGrade.toFixed(1)+'% - TC '+tcPb;
+  } else {
+    totalOrePrice=znOrePrice+pbOrePrice;
+    bd='锌部分: '+znOrePrice.toFixed(0)+' + 铅部分: '+pbOrePrice.toFixed(0);
+  }
+
+  document.getElementById('orePrice').innerHTML=totalOrePrice.toFixed(0)+'<span class="unit">元/吨</span>';
+  document.getElementById('breakdown').textContent=bd;
+}
+
+// ===== Price fetch =====
+function fetchPrices() {
+  var apiUrl='https://api.fsxsymall.com/api/znpb-price';
+  fetch(apiUrl+'?_='+Date.now(),{signal:AbortSignal.timeout(5000)})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.zn){znPrice=d.zn.price;updatePriceDisplay('Zn',d.zn,true);}
+      if(d.pb){pbPrice=d.pb.price;updatePriceDisplay('Pb',d.pb,true);}
+      calc();
+    })
+    .catch(function(){
+      fetch('data/price.json?_='+Date.now())
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d.zn){znPrice=d.zn.price;updatePriceDisplay('Zn',d.zn,false);}
+          if(d.pb){pbPrice=d.pb.price;updatePriceDisplay('Pb',d.pb,false);}
+          calc();
+        })
+        .catch(function(){calc();});
+    });
+}
+
+function updatePriceDisplay(metal,data,live) {
+  var el=document.getElementById('price'+metal);
+  var meta=document.getElementById('meta'+metal);
+  var dot=document.getElementById('dot'+metal);
+  el.innerHTML=data.price.toLocaleString()+'<span class="unit">元/吨</span>';
+  meta.textContent=(live?'实时':'缓存')+' · '+data.source;
+  dot.className='dot '+(live?'live':'cache');
+}
+
+// ===== Init =====
+function init() {
+  // Build presets
+  [['presetsZn','znGrade',[30,35,40,45,50,55]],['presetsPb','pbGrade',[35,40,45,50,55,60,65,70]]].forEach(function(cfg){
+    var el=document.getElementById(cfg[0]);
+    cfg[2].forEach(function(g){
+      var b=document.createElement('button'); b.textContent=g+'%';
+      b.onclick=function(){document.getElementById(cfg[1]).value=g;calc();};
+      el.appendChild(b);
+    });
+  });
+  setMode('zn');
+  fetchPrices();
+  setInterval(fetchPrices,60000);
+}
+init();
+</script>
+</body>
+</html>
