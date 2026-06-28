@@ -1,34 +1,60 @@
 ﻿#!/usr/bin/env python3
-"""Fetch SHFE zinc and lead futures prices from Sina Finance."""
-import json, urllib.request, os, re, sys
-from datetime import datetime
+"""Fetch SMM 1#铅锭 and 1#锌锭 spot prices via SMM AJAX API (no auth needed).
+   Saves to data/price.json for GitHub Pages.
+"""
+import json, urllib.request, os
+from datetime import datetime, timezone, timedelta
 
-SYMBOLS = {"ZN": "nf_ZN0", "PB": "nf_PB0"}
-LABELS = {"ZN": "沪锌连续 (SHFE)", "PB": "沪铅连续 (SHFE)"}
-DEFAULTS = {"ZN": 24420, "PB": 16260}
+CST = timezone(timedelta(hours=8))
+now = datetime.now(CST)
 
-result = {"updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+end_date = now.strftime("%Y-%m-%d")
+start_date = (now - timedelta(days=30)).strftime("%Y-%m-%d")
 
-for key, sym in SYMBOLS.items():
+# SMM product IDs
+PRODUCTS = {
+    "pb": {"id": "201102250211", "name": "SMM 1#铅锭", "default": 16050},
+    "zn": {"id": "201102250418", "name": "SMM 1#锌锭", "default": 23660},
+}
+
+result = {"updated_at": now.strftime("%Y-%m-%d %H:%M:%S"), "source": "smm_ajax"}
+
+for key, cfg in PRODUCTS.items():
+    pid = cfg["id"]
+    api_url = f"https://hq.smm.cn/ajax/spot/history/{pid}/{start_date}/{end_date}"
     try:
-        url = f"https://hq.sinajs.cn/list={sym}"
-        req = urllib.request.Request(url, headers={"Referer": "https://finance.sina.com.cn"})
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            raw = resp.read().decode("gbk", errors="ignore")
-        m = re.search(r'"([^"]*)"', raw)
-        if m:
-            parts = m.group(1).split(",")
-            price = float(parts[3])
-            if price > 0:
-                result[key.lower()] = {"price": price, "source": LABELS[key], "unit": "元/吨"}
-                print(f"{key}: {price:.0f} 元/吨")
-                continue
+        req = urllib.request.Request(
+            api_url,
+            headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                "Referer": f"https://hq.smm.cn/lead/category/{pid}",
+            }
+        )
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            smm = json.loads(resp.read().decode())
+            if smm.get("code") == 0 and smm.get("data"):
+                latest = smm["data"][-1]
+                avg = latest.get("average", 0)
+                if avg > 0:
+                    result[key] = {
+                        "price": int(avg),
+                        "source": cfg["name"],
+                        "unit": "元/吨",
+                        "renew_date": latest.get("renew_date", ""),
+                    }
+                    print(f"{key.upper()}: {int(avg)} 元/吨 (updated: {latest.get('renew_date')})")
+                    continue
     except Exception as e:
-        print(f"{key} fetch error: {e}")
-    # Fallback to default
-    result[key.lower()] = {"price": DEFAULTS[key], "source": "默认参考价", "unit": "元/吨"}
+        print(f"{key.upper()} fetch error: {e}")
 
-out_path = os.path.join(os.path.dirname(__file__), "..", "data", "price.json")
+    # Fallback
+    if key not in result:
+        result[key] = {"price": cfg["default"], "source": "默认参考价", "unit": "元/吨"}
+        print(f"{key.upper()}: fallback {cfg['default']} 元/吨")
+
+out_dir = os.path.join(os.path.dirname(__file__), "..", "data")
+os.makedirs(out_dir, exist_ok=True)
+out_path = os.path.join(out_dir, "price.json")
 with open(out_path, "w", encoding="utf-8") as f:
     json.dump(result, f, ensure_ascii=False, indent=2)
-print(f"Saved to {out_path}")
+print(f"OK -> {out_path}")
