@@ -819,9 +819,9 @@ input[type=range]::-webkit-slider-thumb:hover {
   background: rgba(255,193,7,0.15);
   border: 1px solid #ff8f00;
   color: #ffeb3b;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 0.7rem;
+  padding: 8px 20px;
+  border-radius: 24px;
+  font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.3s;
   font-weight: 600;
@@ -833,6 +833,65 @@ input[type=range]::-webkit-slider-thumb:hover {
 }
 
 .refresh-bar button:active { transform: scale(0.95); }
+
+/* 铅锌矿价格卡片里的样式 - 对齐锡矿石的美化 */
+.price-card .label {
+  font-size: 0.75rem;
+  color: var(--primary-light);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.price-card .label .dot {
+  width: 8px;
+  height: 8px;
+  background: #00ff88;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #00ff88;
+  animation: pulse 2s infinite;
+}
+
+.price-card .label .dot.cache {
+  background: #ffaa00;
+  box-shadow: 0 0 8px #ffaa00;
+  animation: none;
+}
+
+.price-card .value {
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--primary-light), var(--gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.price-card .value .unit {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: var(--text2);
+  margin-left: 4px;
+  -webkit-text-fill-color: var(--text2);
+}
+
+.price-card .meta {
+  font-size: 0.7rem;
+  color: var(--text2);
+  margin-top: 8px;
+  letter-spacing: 0.3px;
+}
+
+/* 锌/铅各自的颜色 */
+.price-card.zn .label { color: #a0c4e8; }
+.price-card.zn .value { background: linear-gradient(135deg, #a0c4e8, #c0d8f0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+.price-card.pb .label { color: #aabbcc; }
+.price-card.pb .value { background: linear-gradient(135deg, #aabbcc, #ccd5e0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
 
 /* 铅锌矿特有 - 品位行（可能并排两个） */
 .grade-row {
