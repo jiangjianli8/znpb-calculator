@@ -815,6 +815,25 @@ input[type=range]::-webkit-slider-thumb:hover {
   margin-bottom: 12px;
 }
 
+.refresh-bar button {
+  background: rgba(255,193,7,0.15);
+  border: 1px solid #ff8f00;
+  color: #ffeb3b;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-weight: 600;
+}
+
+.refresh-bar button:hover {
+  background: rgba(255,193,7,0.25);
+  box-shadow: 0 0 15px rgba(255,193,7,0.3);
+}
+
+.refresh-bar button:active { transform: scale(0.95); }
+
 /* 铅锌矿特有 - 品位行（可能并排两个） */
 .grade-row {
   display: flex;
