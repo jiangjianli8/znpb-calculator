@@ -852,6 +852,19 @@ input[type=range]::-webkit-slider-thumb:hover {
   margin-bottom: 16px;
 }
 
+/* meta行 - 时间在左，按钮在右 */
+.meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.meta-row .meta {
+  margin: 0;
+  padding: 0;
+}
+
 /* 价格卡片 - 锌 */
 .price-card.zn {
   border-color: rgba(58,90,128,0.5);
@@ -1203,7 +1216,7 @@ input[type=range].pb-range::-webkit-slider-thumb {
 
   <!-- Prices -->
 
-  <div class="price-row" id="priceRowZn" style="display:flex">
+  <div class="price-row" id="priceRowZn">
 
     <div class="price-card zn">
 
@@ -1211,13 +1224,16 @@ input[type=range].pb-range::-webkit-slider-thumb {
 
       <div class="value" id="priceZn">--<span class="unit">元/吨</span></div>
 
-      <div class="meta" id="metaZn"><button class="refresh-btn" onclick="fetchPrices()" style="float:right;margin-left:10px">🔄 刷新行情</button></div>
+      <div class="meta-row">
+        <div class="meta" id="metaZn"></div>
+        <button class="refresh-btn" onclick="fetchPrices()">🔄 刷新行情</button>
+      </div>
 
     </div>
 
   </div>
 
-  <div class="price-row" id="priceRowPb" style="display:flex">
+  <div class="price-row" id="priceRowPb">
 
     <div class="price-card pb">
 
