@@ -854,8 +854,28 @@ input[type=range]::-webkit-slider-thumb:hover {
 
 /* 价格卡片 - 锌 */
 .price-card.zn {
-  border-color: rgba(58,90,128,0.3);
-  background: rgba(160,196,232,0.06);
+  border-color: rgba(58,90,128,0.5);
+  background: linear-gradient(135deg, rgba(160,196,232,0.1), rgba(58,90,128,0.08));
+  border: 1px solid rgba(58,90,128,0.5);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.price-card.zn::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -30%;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, #3a5a80 0%, transparent 70%);
+  opacity: 0.15;
+  border-radius: 50%;
+  animation: priceGlow 4s ease-in-out infinite;
 }
 
 .price-card.zn .label { color: #a0c4e8; }
@@ -868,8 +888,28 @@ input[type=range]::-webkit-slider-thumb:hover {
 
 /* 价格卡片 - 铅 */
 .price-card.pb {
-  border-color: rgba(85,102,119,0.3);
-  background: rgba(136,153,170,0.06);
+  border-color: rgba(85,102,119,0.5);
+  background: linear-gradient(135deg, rgba(136,153,170,0.1), rgba(85,102,119,0.08));
+  border: 1px solid rgba(85,102,119,0.5);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.price-card.pb::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -30%;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, #556677 0%, transparent 70%);
+  opacity: 0.15;
+  border-radius: 50%;
+  animation: priceGlow 4s ease-in-out infinite;
 }
 
 .price-card.pb .label { color: #aabbcc; }
@@ -1163,34 +1203,29 @@ input[type=range].pb-range::-webkit-slider-thumb {
 
   <!-- Prices -->
 
-  <div class="prices-container">
-    <div class="refresh-bar"><button onclick="fetchPrices()">🔄 刷新行情</button></div>
+  <div class="price-row" id="priceRowZn" style="display:flex">
 
-    <div class="price-row" id="priceRowZn" style="display:flex">
+    <div class="price-card zn">
 
-      <div class="price-card zn">
+      <div class="label"><span class="dot live" id="dotZn"></span>SMM 1#锌锭</div>
 
-        <div class="label"><span class="dot live" id="dotZn"></span>SMM 1#锌锭</div>
+      <div class="value" id="priceZn">--<span class="unit">元/吨</span></div>
 
-        <div class="value" id="priceZn">--<span class="unit">元/吨</span></div>
-
-        <div class="meta" id="metaZn"></div>
-
-      </div>
+      <div class="meta" id="metaZn"><button class="refresh-btn" onclick="fetchPrices()" style="float:right;margin-left:10px">🔄 刷新行情</button></div>
 
     </div>
 
-    <div class="price-row" id="priceRowPb" style="display:flex">
+  </div>
 
-      <div class="price-card pb">
+  <div class="price-row" id="priceRowPb" style="display:flex">
 
-        <div class="label"><span class="dot live" id="dotPb"></span>SMM 1#铅锭</div>
+    <div class="price-card pb">
 
-        <div class="value" id="pricePb">--<span class="unit">元/吨</span></div>
+      <div class="label"><span class="dot live" id="dotPb"></span>SMM 1#铅锭</div>
 
-        <div class="meta" id="metaPb"></div>
+      <div class="value" id="pricePb">--<span class="unit">元/吨</span></div>
 
-      </div>
+      <div class="meta" id="metaPb"></div>
 
     </div>
 
