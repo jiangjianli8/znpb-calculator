@@ -20,7 +20,7 @@
   --primary: #ffc107;
   --primary-light: #ffeb3b;
   --primary-dark: #ff8f00;
-  --gold: #ffd700;
+  --gold: #ffeb3b;
   --accent: #4ecdc4;
   --danger: #ff4466;
   --border: #2a2a3a;
@@ -109,7 +109,7 @@ body::before {
 .price-card {
   background: linear-gradient(135deg, rgba(255,107,53,0.08), rgba(199,62,29,0.06));
   border: 1px solid var(--primary-dark);
-  border-radius: 0 0 var(--radius) var(--radius);
+  border-radius: var(--radius);
   padding: 18px 20px;
   margin-bottom: 16px;
   position: relative;
@@ -755,7 +755,9 @@ input[type=range]::-webkit-slider-thumb:hover {
   border-radius: 8px;
 }
 
-/* 铅锌矿特有 - 模式切换 */
+/* ===== 铅锌矿特有样式 - 保持原结构，只做简洁美化 ===== */
+
+/* 模式切换 */
 .mode-switch {
   display: flex;
   gap: 6px;
@@ -788,81 +790,69 @@ input[type=range]::-webkit-slider-thumb:hover {
   box-shadow: 0 0 15px rgba(78,205,196,0.2);
 }
 
-/* 铅锌矿特有 - 价格行（两个价格卡片并排） */
-.price-row {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 16px;
-  margin-top: 0;
-}
-
-.price-card.zn {
-  border-color: #3a5a80;
-  background: linear-gradient(135deg, rgba(160,196,232,0.08), rgba(58,90,128,0.06));
-}
-
-.price-card.zn .price-value { color: #a0c4e8; background: linear-gradient(135deg, #a0c4e8, #c0d8f0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-
-.price-card.pb {
-  border-color: #556677;
-  background: linear-gradient(135deg, rgba(136,153,170,0.08), rgba(85,102,119,0.06));
-}
-
-.price-card.pb .price-value { color: #aabbcc; background: linear-gradient(135deg, #aabbcc, #ccd5e0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-
-/* 刷新按钮和价格卡片整合同一卡片 - 参考铜矿石设计 */
+/* 刷新按钮 - 简洁干净，参考铜矿石设计 */
 .refresh-bar {
   display: flex;
   justify-content: flex-end;
-  align-items: center;
-  margin-bottom: 0;
-  margin-top: 0;
-  padding: 12px 20px 0;
-  background: linear-gradient(135deg, rgba(255,193,7,0.08), rgba(255,143,0,0.06));
-  border: 1px solid var(--primary-dark);
-  border-bottom: none;
-  border-radius: var(--radius) var(--radius) 0 0;
-  position: relative;
-  overflow: hidden;
-}
-
-.refresh-bar::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -30%;
-  width: 120px;
-  height: 120px;
-  background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
-  opacity: 0.1;
-  border-radius: 50%;
+  margin-bottom: 12px;
 }
 
 .refresh-bar button {
   background: rgba(255,193,7,0.15);
-  border: 1px solid #ff8f00;
-  color: #ffeb3b;
+  border: 1px solid var(--primary-dark);
+  color: var(--primary-light);
   padding: 6px 16px;
   border-radius: 20px;
   font-size: 0.75rem;
   cursor: pointer;
   transition: all 0.3s;
   font-weight: 600;
-  position: relative;
-  z-index: 1;
 }
 
 .refresh-bar button:hover {
   background: rgba(255,193,7,0.25);
-  box-shadow: 0 0 15px rgba(255,193,7,0.3);
 }
 
 .refresh-bar button:active { transform: scale(0.95); }
 
-/* 铅锌矿价格卡片里的样式 - 对齐锡矿石的美化 */
+/* 价格行 */
+.price-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+/* 价格卡片 - 锌 */
+.price-card.zn {
+  border-color: #3a5a80;
+  background: linear-gradient(135deg, rgba(160,196,232,0.08), rgba(58,90,128,0.06));
+}
+
+.price-card.zn .label { color: #a0c4e8; }
+.price-card.zn .value {
+  background: linear-gradient(135deg, #a0c4e8, #c0d8f0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 价格卡片 - 铅 */
+.price-card.pb {
+  border-color: #556677;
+  background: linear-gradient(135deg, rgba(136,153,170,0.08), rgba(85,102,119,0.06));
+}
+
+.price-card.pb .label { color: #aabbcc; }
+.price-card.pb .value {
+  background: linear-gradient(135deg, #aabbcc, #ccd5e0);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 价格卡片内元素 - 统一美化 */
 .price-card .label {
   font-size: 0.75rem;
-  color: var(--primary-light);
   text-transform: uppercase;
   letter-spacing: 1px;
   margin-bottom: 8px;
@@ -874,26 +864,23 @@ input[type=range]::-webkit-slider-thumb:hover {
 .price-card .label .dot {
   width: 8px;
   height: 8px;
-  background: #00ff88;
   border-radius: 50%;
+}
+
+.price-card .label .dot.live {
+  background: #00ff88;
   box-shadow: 0 0 8px #00ff88;
   animation: pulse 2s infinite;
 }
 
 .price-card .label .dot.cache {
   background: #ffaa00;
-  box-shadow: 0 0 8px #ffaa00;
-  animation: none;
 }
 
 .price-card .value {
   font-size: 2.2rem;
   font-weight: 800;
   line-height: 1;
-  background: linear-gradient(135deg, var(--primary-light), var(--gold));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .price-card .value .unit {
@@ -905,20 +892,12 @@ input[type=range]::-webkit-slider-thumb:hover {
 }
 
 .price-card .meta {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   color: var(--text2);
-  margin-top: 8px;
-  letter-spacing: 0.3px;
+  margin-top: 6px;
 }
 
-/* 锌/铅各自的颜色 */
-.price-card.zn .label { color: #a0c4e8; }
-.price-card.zn .value { background: linear-gradient(135deg, #a0c4e8, #c0d8f0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-
-.price-card.pb .label { color: #aabbcc; }
-.price-card.pb .value { background: linear-gradient(135deg, #aabbcc, #ccd5e0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-
-/* 铅锌矿特有 - 品位行（可能并排两个） */
+/* 品位行 */
 .grade-row {
   display: flex;
   gap: 12px;
@@ -938,17 +917,10 @@ input[type=range]::-webkit-slider-thumb:hover {
 
 .grade-col .val { font-weight: 700; }
 
-.grade-col.zn .val {
-  color: #a0c4e8;
-  text-shadow: 0 0 8px rgba(160,196,232,0.2);
-}
+.grade-col.zn .val { color: #a0c4e8; }
+.grade-col.pb .val { color: #aabbcc; }
 
-.grade-col.pb .val {
-  color: #aabbcc;
-  text-shadow: 0 0 8px rgba(170,187,204,0.2);
-}
-
-/* 铅锌矿slider */
+/* 滑块 - 锌 */
 input[type=range].zn-range {
   background: linear-gradient(90deg, #3a5a80, #a0c4e8);
 }
@@ -958,6 +930,7 @@ input[type=range].zn-range::-webkit-slider-thumb {
   box-shadow: 0 2px 10px rgba(160,196,232,0.4);
 }
 
+/* 滑块 - 铅 */
 input[type=range].pb-range {
   background: linear-gradient(90deg, #556677, #aabbcc);
 }
@@ -967,7 +940,7 @@ input[type=range].pb-range::-webkit-slider-thumb {
   box-shadow: 0 2px 10px rgba(136,153,170,0.4);
 }
 
-/* 铅锌矿presets */
+/* 预设按钮 */
 .presets {
   display: flex;
   gap: 4px;
@@ -993,7 +966,7 @@ input[type=range].pb-range::-webkit-slider-thumb {
   background: rgba(78,205,196,0.08);
 }
 
-/* 铅锌矿param-row */
+/* 参数行 */
 .param-row {
   display: flex;
   gap: 10px;
@@ -1041,7 +1014,7 @@ input[type=range].pb-range::-webkit-slider-thumb {
   box-shadow: 0 0 0 3px rgba(78,205,196,0.15);
 }
 
-/* 铅锌矿税切换 */
+/* 税切换 */
 .tax-toggle {
   display: flex;
   align-items: center;
@@ -1089,7 +1062,7 @@ input[type=range].pb-range::-webkit-slider-thumb {
   transform: translateX(20px);
 }
 
-/* 铅锌矿结果 */
+/* 结果卡片 */
 .result-card .value {
   font-size: 2.8rem;
   font-weight: 900;
@@ -1112,6 +1085,19 @@ input[type=range].pb-range::-webkit-slider-thumb {
   margin-top: 12px;
   line-height: 1.6;
 }
+
+/* spinner */
+.spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
 
 </style>
 
