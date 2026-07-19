@@ -1,309 +1,1119 @@
 ﻿<!DOCTYPE html>
+
 <html lang="zh-CN">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>铅锌矿套保计算器</title>
+
+<title>铅锌矿计价器 · 鑫善源 🟡</title>
+
 <style>
+
+/* ===== 全局变量 - 铅锌矿计价器霓虹主题 ===== */
 :root {
-  --bg: #1a1a1e; --card: #252530; --card2: #2a2a38; --text: #e0e0e0; --text2: #a0a0b0;
-  --zn: #7b9ec7; --zn-light: #a0c4e8; --zn-dark: #3a5a80;
-  --pb: #8899aa; --pb-light: #aabbcc; --pb-dark: #556677;
-  --gold: #daa520; --accent: #4ecdc4; --danger: #e05555; --border: #3a3a48; --radius: 12px;
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #12121a;
+  --bg-card: #1a1a25;
+  --bg-card-hover: #1f1f2e;
+  --border-glow: #ffd70080;
+  --neon-purple: #ffd700;
+  --neon-blue: #daa520;
+  --neon-cyan: #c0c0c0;
+  --neon-green: #ffaa00;
+  --neon-pink: #ff0080;
+  --neon-gold: #ffd700;
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0c0;
+  --text-muted: #606080;
+  --success: #ffaa00;
+  --danger: #ff4466;
+  --warning: #ffaa00;
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family: -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--text); min-height:100vh; display:flex; justify-content:center; padding:16px; }
-.container { width:100%; max-width:520px; }
-.header { text-align:center; padding:24px 0 16px; }
-.header h1 { font-size:2.2rem; font-weight:900; background:linear-gradient(135deg,var(--zn-light),var(--pb-light)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-.header .subtitle { font-size:0.8rem; color:var(--text2); margin-top:4px; }
 
-/* Mode switch */
-.mode-switch { display:flex; gap:6px; margin-bottom:16px; }
-.mode-switch button { flex:1; padding:10px 6px; border:1px solid var(--border); background:var(--card2); color:var(--text2); border-radius:10px; font-size:0.78rem; cursor:pointer; transition:all 0.2s; }
-.mode-switch button.active { border-color:var(--accent); background:rgba(78,205,196,0.12); color:var(--accent); font-weight:700; }
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-/* Price cards */
-.price-row { display:flex; gap:10px; margin-bottom:16px; }
-.price-card { flex:1; background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:14px; text-align:center; }
-.price-card.zn { border-color:var(--zn-dark); background:linear-gradient(135deg,#1a1e24,#1a1e22); }
-.price-card.pb { border-color:var(--pb-dark); background:linear-gradient(135deg,#1e1e22,#1a1e24); }
-.price-card .label { font-size:0.7rem; color:var(--text2); margin-bottom:4px; }
-.price-card .dot { display:inline-block; width:6px; height:6px; border-radius:50%; margin-right:4px; }
-.price-card .dot.live { background:#4caf50; }
-.price-card .dot.cache { background:#ff9800; }
-.price-card .value { font-size:1.6rem; font-weight:800; }
-.price-card.zn .value { color:var(--zn-light); }
-.price-card.pb .value { color:var(--pb-light); }
-.price-card .unit { font-size:0.75rem; font-weight:400; color:var(--text2); }
-.price-card .meta { font-size:0.6rem; color:var(--text2); margin-top:2px; }
-.refresh-bar { display:flex; justify-content:flex-end; margin-bottom:12px; }
-.refresh-bar button { background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--text2); padding:4px 14px; border-radius:20px; font-size:0.7rem; cursor:pointer; }
+body {
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+  background: var(--bg-primary);
+  min-height: 100vh;
+  color: var(--text-primary);
+  padding-bottom: 40px;
+  position: relative;
+  overflow-x: hidden;
+}
 
-/* Calculator card */
-.calc-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:16px; }
-.calc-card h2 { font-size:0.85rem; font-weight:600; color:var(--text2); margin-bottom:14px; }
+body::before {
+  content: '';
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(155, 0, 255, 0.06) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(0, 45, 255, 0.06) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(0, 240, 255, 0.03) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+  animation: bgFloat 20s ease-in-out infinite;
+}
 
-/* Sliders */
-.grade-row { display:flex; gap:12px; margin-bottom:14px; }
-.grade-col { flex:1; }
-.grade-col label { display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text2); margin-bottom:6px; }
-.grade-col .val { font-weight:700; }
-.grade-col.zn .val { color:var(--zn-light); }
-.grade-col.pb .val { color:var(--pb-light); }
-input[type=range] { -webkit-appearance:none; width:100%; height:6px; border-radius:3px; outline:none; }
-input[type=range].zn-range { background:linear-gradient(90deg,#3a5a80,var(--zn-light)); }
-input[type=range].pb-range { background:linear-gradient(90deg,#556677,var(--pb-light)); }
-input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:30px; height:30px; border-radius:50%; border:3px solid #fff; cursor:pointer; }
-input[type=range].zn-range::-webkit-slider-thumb { background:var(--zn-light); box-shadow:0 2px 10px rgba(123,158,199,0.4); }
-input[type=range].pb-range::-webkit-slider-thumb { background:var(--pb-light); box-shadow:0 2px 10px rgba(136,153,170,0.4); }
+@keyframes bgFloat {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(2%, -2%) rotate(1deg); }
+  66% { transform: translate(-2%, 2%) rotate(-1deg); }
+}
 
-/* Presets */
-.presets { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:12px; }
-.presets button { background:var(--card2); border:1px solid var(--border); color:var(--text2); padding:3px 9px; border-radius:16px; font-size:0.65rem; cursor:pointer; }
+.header {
+  background: linear-gradient(135deg, rgba(155, 0, 255, 0.12) 0%, rgba(0, 45, 255, 0.12) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(155, 0, 255, 0.25);
+  color: #fff;
+  padding: 20px 16px 16px;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 30px rgba(155, 0, 255, 0.15);
+}
 
-/* Coeff + TC */
-.param-row { display:flex; gap:10px; margin-bottom:14px; }
-.param-item { flex:1; background:var(--card2); border-radius:8px; padding:10px 12px; text-align:center; }
-.param-item .lbl { font-size:0.65rem; color:var(--text2); }
-.param-item .v { font-size:1.1rem; font-weight:700; color:var(--accent); }
-.param-item input { background:var(--bg); border:1px solid var(--border); color:var(--text); width:80px; padding:3px 6px; border-radius:4px; font-size:0.75rem; text-align:center; }
+.header h1 {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan), var(--neon-blue));
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 3s ease infinite;
+}
 
-/* Tax toggle */
-.tax-toggle { display:flex; align-items:center; gap:8px; margin-bottom:14px; font-size:0.7rem; color:var(--text2); }
-.tax-toggle .switch { position:relative; width:44px; height:24px; }
-.tax-toggle .switch input { opacity:0; width:0; height:0; }
-.tax-toggle .slider { position:absolute; cursor:pointer; top:0;left:0;right:0;bottom:0; background:var(--border); border-radius:24px; transition:0.3s; }
-.tax-toggle .slider:before { content:""; position:absolute; height:18px; width:18px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:0.3s; }
-.tax-toggle input:checked+.slider { background:var(--accent); }
-.tax-toggle input:checked+.slider:before { transform:translateX(20px); }
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
 
-/* Result */
-.result-card { background:linear-gradient(135deg,#1e1a14,#1a1e14); border:2px solid var(--gold); border-radius:var(--radius); padding:20px; text-align:center; margin-bottom:16px; }
-.result-card .label { font-size:0.75rem; color:var(--gold); margin-bottom:6px; }
-.result-card .value { font-size:2.8rem; font-weight:800; color:var(--gold); }
-.result-card .unit { font-size:0.85rem; color:var(--text2); }
-.result-card .breakdown { font-size:0.7rem; color:var(--text2); margin-top:8px; line-height:1.6; }
+.header .sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
 
-/* Footer */
-.footer { text-align:center; padding:16px; }
-.footer span { font-weight:900; font-size:1.95rem; }
-.footer .brand1 { color:#2196F3; }
-.footer .brand2 { color:#2196F3; }
+.header .brand {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
 
-.price-error { color:var(--danger); font-size:0.65rem; }
+.source-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+.source-dot.live {
+  background: var(--neon-green);
+  box-shadow: 0 0 10px var(--neon-green), 0 0 20px var(--neon-green);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.source-dot.delayed {
+  background: var(--warning);
+  box-shadow: 0 0 8px var(--warning);
+}
+
+.source-dot.offline {
+  background: var(--text-muted);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+.container {
+  padding: 16px 12px;
+  max-width: 500px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid rgba(155, 0, 255, 0.15);
+  border-radius: var(--radius-lg);
+  padding: 18px 16px;
+  margin-bottom: 14px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(155, 0, 255, 0.08), transparent);
+  transition: left 0.6s ease;
+}
+
+.card:hover::before { left: 100%; }
+
+.card:hover {
+  border-color: rgba(155, 0, 255, 0.4);
+  box-shadow: 0 0 20px rgba(155, 0, 255, 0.15), 0 8px 32px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+.card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.card-title::before {
+  content: '';
+  width: 3px;
+  height: 16px;
+  background: linear-gradient(180deg, var(--neon-purple), var(--neon-cyan));
+  border-radius: 2px;
+}
+
+.price-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, rgba(155, 0, 255, 0.08) 0%, rgba(0, 45, 255, 0.08) 100%);
+  border: 1px solid rgba(155, 0, 255, 0.2);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  position: relative;
+  overflow: hidden;
+}
+
+.price-bar::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 150px;
+  height: 150px;
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.12) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: priceGlow 4s ease-in-out infinite;
+}
+
+@keyframes priceGlow {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+.price-bar .price {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: relative;
+  z-index: 1;
+}
+
+.price-bar .change {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 6px;
+  position: relative;
+  z-index: 1;
+}
+
+.price-bar .change.up {
+  color: var(--danger);
+  background: rgba(255, 68, 102, 0.12);
+  border: 1px solid rgba(255, 68, 102, 0.25);
+}
+
+.price-bar .change.down {
+  color: var(--success);
+  background: rgba(0, 255, 136, 0.12);
+  border: 1px solid rgba(0, 255, 136, 0.25);
+}
+
+.price-bar .status {
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  position: relative;
+  z-index: 1;
+}
+
+.price-bar .status.realtime {
+  background: rgba(0, 240, 255, 0.12);
+  color: var(--neon-cyan);
+  border: 1px solid rgba(0, 240, 255, 0.25);
+}
+
+.price-bar .status.closed {
+  background: rgba(96, 96, 128, 0.15);
+  color: var(--text-muted);
+  border: 1px solid rgba(96, 96, 128, 0.25);
+}
+
+.price-bar .refresh {
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+  color: #fff;
+  border: none;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  min-height: 36px;
+}
+
+.price-bar .refresh:hover {
+  box-shadow: 0 0 20px rgba(155, 0, 255, 0.4);
+  transform: scale(1.05);
+}
+
+.price-bar .refresh:active { transform: scale(0.95); }
+
+.price-bar .refresh.loading { animation: spin 1s linear infinite; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.quick-presets {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.preset-chip {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(96, 96, 128, 0.15);
+  color: var(--text-secondary);
+  border: 1.5px solid rgba(96, 96, 128, 0.25);
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.preset-chip:hover {
+  background: rgba(155, 0, 255, 0.12);
+  border-color: rgba(155, 0, 255, 0.35);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
+
+.preset-chip.active {
+  background: linear-gradient(135deg, rgba(155, 0, 255, 0.25), rgba(0, 45, 255, 0.25));
+  border-color: var(--neon-purple);
+  color: var(--text-primary);
+  box-shadow: 0 0 15px rgba(155, 0, 255, 0.25);
+}
+
+.form-row { display: flex; gap: 10px; margin-bottom: 10px; }
+.form-row .field { flex: 1; }
+.field { margin-bottom: 10px; }
+
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+.field label span {
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.field .input-wrap { position: relative; }
+
+.field input {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--bg-secondary);
+  border: 1.5px solid rgba(96, 96, 128, 0.25);
+  border-radius: var(--radius-md);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.field input:hover { border-color: rgba(155, 0, 255, 0.35); }
+
+.field input:focus {
+  border-color: var(--neon-purple);
+  box-shadow: 0 0 0 3px rgba(155, 0, 255, 0.12), 0 0 20px rgba(155, 0, 255, 0.15);
+  background: var(--bg-card);
+}
+
+.field .suffix {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.note {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  padding-left: 4px;
+}
+
+.btn-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.btn {
+  flex: 1;
+  padding: 14px 0;
+  border: none;
+  border-radius: 50px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 1px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+  color: #fff;
+  border: 2px solid var(--neon-purple);
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: block;
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.12);
+  width: 50px;
+  height: 50px;
+  transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.btn-primary:hover::before {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 30px rgba(155, 0, 255, 0.4), 0 0 60px rgba(0, 45, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+.btn-primary:active { transform: scale(0.97); }
+
+.btn-success {
+  background: transparent;
+  color: var(--neon-cyan);
+  border: 2px solid var(--neon-cyan);
+}
+
+.btn-success::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: block;
+  border-radius: 50px;
+  background: rgba(0, 240, 255, 0.08);
+  width: 50px;
+  height: 50px;
+  transition: all 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.btn-success:hover::before {
+  width: 100%;
+  background: rgba(0, 240, 255, 0.12);
+}
+
+.btn-success:hover {
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.35), inset 0 0 20px rgba(0, 240, 255, 0.08);
+  transform: translateY(-2px);
+}
+
+.btn-success:active { transform: scale(0.97); }
+
+.tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.tag-6 { background: rgba(0, 240, 255, 0.12); color: var(--neon-cyan); border: 1px solid rgba(0, 240, 255, 0.25); }
+.tag-5 { background: rgba(0, 255, 136, 0.12); color: var(--neon-green); border: 1px solid rgba(0, 255, 136, 0.25); }
+.tag-4 { background: rgba(255, 170, 0, 0.12); color: var(--warning); border: 1px solid rgba(255, 170, 0, 0.25); }
+.tag-3 { background: rgba(255, 0, 128, 0.12); color: #ff0080; border: 1px solid rgba(255, 0, 128, 0.25); }
+.tag-2 { background: rgba(255, 215, 0, 0.12); color: #ffd700; border: 1px solid rgba(255, 215, 0, 0.25); }
+.tag-1 { background: rgba(255, 68, 102, 0.12); color: var(--danger); border: 1px solid rgba(255, 68, 102, 0.25); }
+
+.result-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(0, 240, 255, 0.15);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 14px;
+  display: none;
+  position: relative;
+}
+
+.result-card.show {
+  display: block;
+  animation: fadeInUp 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.result-header {
+  background: linear-gradient(135deg, rgba(155, 0, 255, 0.15) 0%, rgba(0, 45, 255, 0.15) 100%);
+  color: var(--text-primary);
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(155, 0, 255, 0.15);
+  letter-spacing: 1px;
+}
+
+.result-body { padding: 12px 16px; }
+
+.result-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(96, 96, 128, 0.12);
+  font-size: 13px;
+}
+
+.result-row:last-child { border-bottom: none; }
+
+.result-label { color: var(--text-secondary); font-weight: 500; }
+.result-val { font-weight: 800; color: var(--text-primary); }
+
+.result-val.big {
+  font-size: 22px;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.result-val.dun {
+  color: var(--neon-green);
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.25);
+}
+
+.result-val.usd {
+  color: #ffd700;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.25);
+}
+
+.copy-btn {
+  background: rgba(96, 96, 128, 0.15);
+  border: 1px solid rgba(96, 96, 128, 0.25);
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.copy-btn:hover {
+  background: rgba(155, 0, 255, 0.15);
+  border-color: var(--neon-purple);
+  color: var(--text-primary);
+}
+
+.copy-btn:active { transform: scale(0.95); }
+
+.error-box {
+  background: rgba(255, 68, 102, 0.08);
+  border: 1px solid rgba(255, 68, 102, 0.25);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: var(--danger);
+  display: none;
+  animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.history-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(96, 96, 128, 0.15);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  display: none;
+}
+
+.history-card.show {
+  display: block;
+  animation: fadeInUp 0.5s ease;
+}
+
+.history-card h3 {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(96, 96, 128, 0.12);
+  font-size: 12px;
+}
+
+.history-item .h-price { font-weight: 800; color: var(--neon-cyan); }
+.history-item .h-time { color: var(--text-muted); font-size: 11px; }
+.history-item:last-child { border-bottom: none; }
+
+.toast {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: linear-gradient(135deg, var(--neon-purple), var(--neon-blue));
+  color: #fff;
+  padding: 10px 24px;
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  z-index: 999;
+  pointer-events: none;
+  box-shadow: 0 4px 20px rgba(155, 0, 255, 0.35);
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.footer {
+  text-align: center;
+  padding: 16px;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+}
+
+@media (min-width: 480px) {
+  .container { padding: 20px 16px; }
+}
+
 </style>
+
 </head>
+
 <body>
+
 <div class="container">
+
   <div class="header">
-    <h1>铅锌矿套保计算器</h1>
+
+    <h1>🟡 铅锌矿计价器</h1>
+
     <div class="subtitle" id="subtitle">基于SMM 1#锌锭/1#铅锭现货行情</div>
+
   </div>
+
+
 
   <!-- Mode -->
+
   <div class="mode-switch">
+
     <button class="active" onclick="setMode('zn')">🪙 纯锌矿</button>
+
     <button onclick="setMode('pb')">🪨 纯铅矿</button>
+
     <button onclick="setMode('mixed')">⚒️ 铅锌混合矿</button>
+
   </div>
+
+
 
   <!-- Prices -->
+
   <div class="refresh-bar"><button onclick="fetchPrices()">🔄 刷新行情</button></div>
+
   <div class="price-row" id="priceRowZn" style="display:flex">
+
     <div class="price-card zn">
+
       <div class="label"><span class="dot live" id="dotZn"></span>SMM 1#锌锭</div>
+
       <div class="value" id="priceZn">--<span class="unit">元/吨</span></div>
+
       <div class="meta" id="metaZn"></div>
+
     </div>
+
   </div>
+
   <div class="price-row" id="priceRowPb" style="display:flex">
+
     <div class="price-card pb">
+
       <div class="label"><span class="dot live" id="dotPb"></span>SMM 1#铅锭</div>
+
       <div class="value" id="pricePb">--<span class="unit">元/吨</span></div>
+
       <div class="meta" id="metaPb"></div>
+
     </div>
+
   </div>
+
+
 
   <!-- Calculator -->
+
   <div class="calc-card">
+
     <h2>📐 精矿计价</h2>
 
+
+
     <!-- Zn grade -->
+
     <div class="grade-row" id="gradeRowZn">
+
       <div class="grade-col zn" style="flex:1">
+
         <label>锌品位 Zn% <span class="val" id="znGradeVal">50</span>%</label>
+
         <input type="range" class="zn-range" id="znGrade" min="25" max="60" value="50" step="0.1" oninput="calc()">
+
       </div>
+
     </div>
+
     <div class="presets" id="presetsZn"></div>
 
+
+
     <!-- Pb grade -->
+
     <div class="grade-row" id="gradeRowPb">
+
       <div class="grade-col pb" style="flex:1">
+
         <label>铅品位 Pb% <span class="val" id="pbGradeVal">60</span>%</label>
+
         <input type="range" class="pb-range" id="pbGrade" min="30" max="80" value="60" step="0.1" oninput="calc()">
+
       </div>
+
     </div>
+
     <div class="presets" id="presetsPb"></div>
 
+
+
     <!-- Coeff + TC -->
+
     <div class="param-row" id="paramRowZn">
+
       <div class="param-item"><div class="lbl">锌计价系数</div><div class="v" id="coeffZn">75%</div></div>
+
       <div class="param-item"><div class="lbl">锌TC (元/金属吨)</div><input type="number" id="tcZn" value="5200" min="4000" max="7000" step="100" oninput="calc()"></div>
+
     </div>
+
     <div class="param-row" id="paramRowPb">
+
       <div class="param-item"><div class="lbl">铅计价系数</div><div class="v" id="coeffPb">75%</div></div>
+
       <div class="param-item"><div class="lbl">铅TC (元/金属吨)</div><input type="number" id="tcPb" value="500" min="300" max="800" step="50" oninput="calc()"></div>
+
     </div>
+
+
 
     <!-- Tax toggle -->
+
     <div class="tax-toggle">
+
       <label class="switch"><input type="checkbox" id="taxMode" checked onchange="calc()"><span class="slider"></span></label>
+
       <span id="taxLabel">含税价 → 不含税 (÷1.13)</span>
+
     </div>
+
   </div>
+
+
 
   <!-- Result -->
+
   <div class="result-card">
+
     <div class="label">💰 精矿单价</div>
+
     <div class="value" id="orePrice">--<span class="unit">元/吨</span></div>
+
     <div class="breakdown" id="breakdown"></div>
+
   </div>
+
+
 
   <div class="footer">
+
     <span class="brand1">矿链通1.0</span>
+
     <span class="brand2">-佛山鑫善源</span>
+
   </div>
+
 </div>
 
+
+
 <script>
+
 // ===== Coefficient Tables (corrected per industry standard) =====
+
 var ZN_COEFF = [[25,60],[35,65],[45,70],[50,75],[55,75],[60,75]];
+
 var PB_COEFF = [[30,55],[35,60],[40,65],[50,75],[60,80],[70,88],[80,88]];
 
+
+
 var currentMode = 'zn';
+
 var znPrice = 24420, pbPrice = 16260;
 
+
+
 // ===== Interpolation =====
+
 function getCoeff(table, grade) {
+
   if (grade <= table[0][0]) return table[0][1];
+
   if (grade >= table[table.length-1][0]) return table[table.length-1][1];
+
   for (var i=0;i<table.length-1;i++) {
+
     if (grade>=table[i][0] && grade<=table[i+1][0]) {
+
       var t=(grade-table[i][0])/(table[i+1][0]-table[i][0]);
+
       return table[i][1]+t*(table[i+1][1]-table[i][1]);
+
     }
+
   }
+
   return table[table.length-1][1];
+
 }
+
+
 
 // ===== Mode switch =====
+
 function setMode(mode) {
+
   currentMode = mode;
+
   document.querySelectorAll('.mode-switch button').forEach(function(b,i){
+
     b.classList.toggle('active', (i===0&&mode==='zn')||(i===1&&mode==='pb')||(i===2&&mode==='mixed'));
+
   });
+
   var showZn = mode==='zn'||mode==='mixed';
+
   var showPb = mode==='pb'||mode==='mixed';
+
   document.getElementById('gradeRowZn').style.display = showZn?'flex':'none';
+
   document.getElementById('gradeRowPb').style.display = showPb?'flex':'none';
+
   document.getElementById('presetsZn').style.display = showZn?'flex':'none';
+
   document.getElementById('presetsPb').style.display = showPb?'flex':'none';
+
   document.getElementById('paramRowZn').style.display = showZn?'flex':'none';
+
   document.getElementById('paramRowPb').style.display = showPb?'flex':'none';
+
   document.getElementById('priceRowZn').style.display = showZn?'flex':'none';
+
   document.getElementById('priceRowPb').style.display = showPb?'flex':'none';
+
   document.getElementById('subtitle').textContent = mode==='mixed'?'基于SMM 1#锌锭/1#铅锭现货行情':'基于SMM 1#锌锭/1#铅锭现货行情';
+
   calc();
+
 }
+
+
 
 // ===== Calculation =====
+
 function calc() {
+
   var znGrade=parseFloat(document.getElementById('znGrade').value);
+
   var pbGrade=parseFloat(document.getElementById('pbGrade').value);
+
   var tcZn=parseFloat(document.getElementById('tcZn').value)||5200;
+
   var tcPb=parseFloat(document.getElementById('tcPb').value)||500;
+
   var exVat=document.getElementById('taxMode').checked;
+
   var divider=exVat?1.13:1;
+
   document.getElementById('taxLabel').textContent=exVat?'含税价 → 不含税 (÷1.13)':'不含税模式 (直接计算)';
 
+
+
   var znCoeff=getCoeff(ZN_COEFF,znGrade);
+
   var pbCoeff=getCoeff(PB_COEFF,pbGrade);
 
+
+
   document.getElementById('znGradeVal').textContent=znGrade.toFixed(1);
+
   document.getElementById('pbGradeVal').textContent=pbGrade.toFixed(1);
+
   document.getElementById('coeffZn').textContent=znCoeff.toFixed(1)+'%';
+
   document.getElementById('coeffPb').textContent=pbCoeff.toFixed(1)+'%';
 
+
+
   // Formula: (price/1.13) * coeff% * grade%  (TC is deducted from metal value)
+
   var znOrePrice=((znPrice/divider)-tcZn)*(znCoeff/100)*(znGrade/100);
+
   var pbOrePrice=((pbPrice/divider)-tcPb)*(pbCoeff/100)*(pbGrade/100);
 
+
+
   var totalOrePrice=0;
+
   var bd='';
+
   if (currentMode==='zn') {
+
     totalOrePrice=znOrePrice;
+
     bd='1#锌 '+znPrice.toLocaleString()+' ÷1.13 ×'+znCoeff.toFixed(1)+'% ×'+znGrade.toFixed(1)+'% - TC '+tcZn;
+
   } else if (currentMode==='pb') {
+
     totalOrePrice=pbOrePrice;
+
     bd='1#铅 '+pbPrice.toLocaleString()+' ÷1.13 ×'+pbCoeff.toFixed(1)+'% ×'+pbGrade.toFixed(1)+'% - TC '+tcPb;
+
   } else {
+
     totalOrePrice=znOrePrice+pbOrePrice;
+
     bd='锌部分: '+znOrePrice.toFixed(0)+' + 铅部分: '+pbOrePrice.toFixed(0);
+
   }
 
+
+
   document.getElementById('orePrice').innerHTML=totalOrePrice.toFixed(0)+'<span class="unit">元/吨</span>';
+
   document.getElementById('breakdown').textContent=bd;
+
 }
+
+
 
 // ===== Price fetch =====
+
 function fetchPrices() {
+
   var apiUrl='https://api.fsxsymall.com/api/znpb-price';
+
   fetch(apiUrl+'?_='+Date.now(),{signal:AbortSignal.timeout(5000)})
+
     .then(function(r){return r.json();})
+
     .then(function(d){
+
       if(d.zn){znPrice=d.zn.price;updatePriceDisplay('Zn',d.zn,true);}
+
       if(d.pb){pbPrice=d.pb.price;updatePriceDisplay('Pb',d.pb,true);}
+
       calc();
+
     })
+
     .catch(function(){
+
       fetch('data/price.json?_='+Date.now())
+
         .then(function(r){return r.json();})
+
         .then(function(d){
+
           if(d.zn){znPrice=d.zn.price;updatePriceDisplay('Zn',d.zn,false);}
+
           if(d.pb){pbPrice=d.pb.price;updatePriceDisplay('Pb',d.pb,false);}
+
           calc();
+
         })
+
         .catch(function(){calc();});
+
     });
+
 }
+
+
 
 function updatePriceDisplay(metal,data,live) {
+
   var el=document.getElementById('price'+metal);
+
   var meta=document.getElementById('meta'+metal);
+
   var dot=document.getElementById('dot'+metal);
+
   el.innerHTML=data.price.toLocaleString()+'<span class="unit">元/吨</span>';
+
   meta.textContent=(live?'实时':'缓存')+' · '+data.source;
+
   dot.className='dot '+(live?'live':'cache');
+
 }
 
+
+
 // ===== Init =====
+
 function init() {
+
   // Build presets
+
   [['presetsZn','znGrade',[30,35,40,45,50,55]],['presetsPb','pbGrade',[35,40,45,50,55,60,65,70]]].forEach(function(cfg){
+
     var el=document.getElementById(cfg[0]);
+
     cfg[2].forEach(function(g){
+
       var b=document.createElement('button'); b.textContent=g+'%';
+
       b.onclick=function(){document.getElementById(cfg[1]).value=g;calc();};
+
       el.appendChild(b);
+
     });
+
   });
+
   setMode('zn');
+
   fetchPrices();
+
   setInterval(fetchPrices,60000);
+
 }
+
 init();
+
 </script>
+
 </body>
+
 </html>
+
