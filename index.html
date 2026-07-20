@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 
 <html lang="zh-CN">
 
@@ -850,6 +850,14 @@ input[type=range]::-webkit-slider-thumb:hover {
   display: flex;
   gap: 10px;
   margin-bottom: 16px;
+  width: 100%;
+}
+
+/* 让价格卡片占满整行 - 对齐 mode-switch 和 calc-card */
+.price-row > .price-card {
+  flex: 1 1 100%;
+  width: 100%;
+  min-width: 0;
 }
 
 /* meta行 - 时间在左，按钮在右 */
@@ -872,10 +880,11 @@ input[type=range]::-webkit-slider-thumb:hover {
   border: 1px solid rgba(58,90,128,0.5);
   border-radius: var(--radius);
   padding: 18px 20px;
-  margin-bottom: 16px;
+  margin-bottom: 0;
   position: relative;
   overflow: hidden;
   backdrop-filter: blur(10px);
+  box-sizing: border-box;
 }
 
 .price-card.zn::before {
@@ -906,10 +915,11 @@ input[type=range]::-webkit-slider-thumb:hover {
   border: 1px solid rgba(85,102,119,0.5);
   border-radius: var(--radius);
   padding: 18px 20px;
-  margin-bottom: 16px;
+  margin-bottom: 0;
   position: relative;
   overflow: hidden;
   backdrop-filter: blur(10px);
+  box-sizing: border-box;
 }
 
 .price-card.pb::before {
@@ -1241,7 +1251,10 @@ input[type=range].pb-range::-webkit-slider-thumb {
 
       <div class="value" id="pricePb">--<span class="unit">元/吨</span></div>
 
-      <div class="meta" id="metaPb"></div>
+      <div class="meta-row">
+        <div class="meta" id="metaPb"></div>
+        <button class="refresh-btn" onclick="fetchPrices()">🔄 刷新行情</button>
+      </div>
 
     </div>
 
