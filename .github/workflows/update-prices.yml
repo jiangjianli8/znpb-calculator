@@ -1,4 +1,4 @@
-﻿name: Update Zn Pb Prices
+name: Update Zn Pb Prices
 
 on:
   schedule:
@@ -10,12 +10,23 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install akshare
+
       - name: Fetch prices
         run: python3 scripts/fetch-prices.py
+
       - name: Commit if changed
         run: |
           git config user.name 'github-actions[bot]'
