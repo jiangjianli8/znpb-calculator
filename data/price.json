@@ -1,16 +1,16 @@
 {
-  "updated_at": "2026-10-20 20:36:59",
+  "updated_at": "2026-10-21 13:22:14",
   "source": "smm_ajax",
   "pb": {
     "price": 16125,
     "source": "SMM 1#铅锭",
     "unit": "元/吨",
-    "renew_date": "2026-10-20"
+    "renew_date": "2026-10-21"
   },
   "zn": {
-    "price": 25420,
+    "price": 25535,
     "source": "SMM 1#锌锭",
     "unit": "元/吨",
-    "renew_date": "2026-10-20"
+    "renew_date": "2026-10-21"
   }
 }
