@@ -1456,13 +1456,19 @@ function calc() {
 
   var pbGrade=parseFloat(document.getElementById('pbGrade').value);
 
-  var tcZn=parseFloat(document.getElementById('tcZn').value)||5200;
+  // 修复：|| 会把合法的 0 吃掉（输入 0 元/吨 TC 会被替换成默认值）
+  var _tcZn=parseFloat(document.getElementById('tcZn').value);
+  var tcZn=isNaN(_tcZn)?5200:_tcZn;
 
-  var tcPb=parseFloat(document.getElementById('tcPb').value)||500;
+  var _tcPb=parseFloat(document.getElementById('tcPb').value);
+  var tcPb=isNaN(_tcPb)?500:_tcPb;
 
   var exVat=document.getElementById('taxMode').checked;
 
   var divider=exVat?1.13:1;
+
+  // 展示用：不含税模式下不能再显示 ÷1.13
+  var vatStr=exVat?' ÷1.13':'';
 
   document.getElementById('taxLabel').textContent=exVat?'含税价 → 不含税 (÷1.13)':'不含税模式 (直接计算)';
 
@@ -1484,7 +1490,7 @@ function calc() {
 
 
 
-  // Formula: (price/1.13) * coeff% * grade%  (TC is deducted from metal value)
+  // Formula: (price/1.13 - TC) * coeff% * grade%  (TC is deducted from metal value)
 
   var znOrePrice=((znPrice/divider)-tcZn)*(znCoeff/100)*(znGrade/100);
 
@@ -1500,13 +1506,13 @@ function calc() {
 
     totalOrePrice=znOrePrice;
 
-    bd='1#锌 '+znPrice.toLocaleString()+' ÷1.13 ×'+znCoeff.toFixed(1)+'% ×'+znGrade.toFixed(1)+'% - TC '+tcZn;
+    bd='1#锌 ('+znPrice.toLocaleString()+vatStr+' − TC '+tcZn+') × '+znCoeff.toFixed(1)+'% × '+znGrade.toFixed(1)+'%';
 
   } else if (currentMode==='pb') {
 
     totalOrePrice=pbOrePrice;
 
-    bd='1#铅 '+pbPrice.toLocaleString()+' ÷1.13 ×'+pbCoeff.toFixed(1)+'% ×'+pbGrade.toFixed(1)+'% - TC '+tcPb;
+    bd='1#铅 ('+pbPrice.toLocaleString()+vatStr+' − TC '+tcPb+') × '+pbCoeff.toFixed(1)+'% × '+pbGrade.toFixed(1)+'%';
 
   } else {
 
